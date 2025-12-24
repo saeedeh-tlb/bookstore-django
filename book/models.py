@@ -12,3 +12,10 @@ class Book(models.Model):
     price=models.FloatField()
     category=models.CharField(max_length=2 , choices=CATEGORY_CHICES)
 
+    def serialize(self):
+        return {
+            "name": self.name,
+            "published_date": self.published_date,
+            "price": self.price,
+            "category":self.category,
+        }

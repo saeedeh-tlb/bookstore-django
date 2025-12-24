@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse , JsonResponse
-import datetime
 from .models import Book
+from rest_framework import serializers
 
 
-def current_datetime(request):
-    now = datetime.datetime.now()
-    html = '<html lang="en"><body>It is now %s.</body></html>' % now
-    return HttpResponse(html)
+def books(request):
+    if request.method == "GET":
+        books = Book.objects.all()
+        return JsonResponse([book.serialize() for book in books], safe=False)
 

@@ -10,6 +10,7 @@ from book.forms import  CreateBook
 import json
 from rest_framework.views import APIView
 from book.serializers import BookSerializer
+from rest_framework import generics
 
 def get_all_books(request):
     books=list(Book.objects.values())
@@ -37,7 +38,7 @@ class BookAPI(APIView):
 
     def post(self , request):
         body = json.loads(request.body.decode('utf-8'))
-        body['published_date'] = datetime.now()
+
         form = BookSerializer(data=body)
         if form.is_valid():
             book = form.save()
@@ -48,6 +49,28 @@ class BookAPI(APIView):
         books = list(Book.objects.values())
         return JsonResponse(books, safe=False)
 
-    def delete(self , request):
-        
+
+
+
+class PostBookAPI(generics.ListCreateAPIView):
+    serializer_class = BookSerializer
+    queryset = Book.objects.all()
+
+
+class DelBookAPI(generics.DestroyAPIView):
+    serializer_class = BookSerializer
+    queryset = Book.objects.all()
+
+class GetBookAPI(generics.RetrieveAPIView):
+    serializer_class = BookSerializer
+    queryset = Book.objects.all()
+
+class PutBookAPI(generics.RetrieveUpdateAPIView):
+    serializer_class = BookSerializer
+    queryset = Book.objects.all()
+
+
+
+
+
 

@@ -11,6 +11,18 @@ import json
 from rest_framework.views import APIView
 from book.serializers import BookSerializer
 from rest_framework import generics
+from rest_framework import viewsets, permissions
+from .models import Book, BookImage
+from .serializers import BookSerializer, BookImageSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.generics import CreateAPIView
+
+
+
 
 def get_all_books(request):
     books=list(Book.objects.values())
@@ -69,7 +81,75 @@ class PutBookAPI(generics.RetrieveUpdateAPIView):
     serializer_class = BookSerializer
     queryset = Book.objects.all()
 
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
 
+class BookViewSet(viewsets.ModelViewSet):
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # فقط کتاب‌های خود کاربر
+        return Book.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class BookImageViewSet(viewsets.ModelViewSet):
+    serializer_class = BookImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # فقط ایمیج‌های کتاب‌های خود کاربر
+        return BookImage.objects.filter(book__user=self.request.user)
+
+    def perform_create(self, serializer):
+        book_id = self.request.data.get("book")
+        book = Book.objects.get(id=book_id, user=self.request.user)
+        serializer.save(book=book)
+
+
+class PublishedBooksAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        books = Book.objects.filter(is_published=True).select_related("user").prefetch_related("images")
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
+
+def get_queryset(self):
+    return Book.objects.filter(user=self.request.user)
+
+
+
+class BookListCreateAPIView(ListCreateAPIView):
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class BookDetailAPIView(RetrieveUpdateDestroyAPIView):
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
+
+
+class BookImageCreateAPIView(CreateAPIView):
+    serializer_class = BookImageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        book_id = self.request.data.get("book")
+        book = Book.objects.get(id=book_id, user=self.request.user)
+        serializer.save(book=book)
 
 
 

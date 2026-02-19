@@ -1,16 +1,23 @@
 from django.urls import path
-from book import views
 from book.views import *
+from rest_framework.routers import DefaultRouter
+from .views import BookViewSet, BookImageViewSet, PublishedBooksAPIView
+from django.urls import path , include
 
-urlpatterns=[
-    path('', book),
-    path('index' , index),
-    path('view', get_all_books),
-    path('create' , BookAPI.as_view()) ,
-    path('post-book' , PostBookAPI.as_view()) ,
-    path('del-book/<str:pk>' , DelBookAPI.as_view()),
-    path('get-book/<str:pk>' ,GetBookAPI.as_view()),
-    path('put-book/<str:pk>' , PutBookAPI.as_view())
+urlpatterns = [
 
 
+    path('published-books/', PublishedBooksAPIView.as_view()),
+    path('books/', BookListCreateAPIView.as_view()),
+    path('books/<int:pk>/', BookDetailAPIView.as_view()),
+    path('book-images/', BookImageCreateAPIView.as_view()),
+    path("api/", include("book.urls")),
+]
+
+
+router = DefaultRouter()
+router.register("books", BookViewSet, basename="books")
+router.register("images", BookImageViewSet, basename="images")
+urlpatterns = router.urls + [
+    path("published-books/", PublishedBooksAPIView.as_view()),
 ]

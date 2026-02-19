@@ -3,6 +3,24 @@ from http.client import responses
 
 from rest_framework import serializers
 from book.models import Book
+from rest_framework import serializers
+from .models import Book, BookImage
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+
+class BookImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookImage
+        fields = ["id", "image"]
+
+class PublisherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+
+
 
 class BookSerializer(serializers.ModelSerializer):
 
@@ -23,3 +41,16 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model=Book
         fields='__all__'
+
+
+class BookImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookImage
+        fields = ["id", "image"]
+
+
+class PublisherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+

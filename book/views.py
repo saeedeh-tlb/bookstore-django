@@ -20,6 +20,7 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.generics import CreateAPIView
+from .pagination import BookPagination
 
 
 
@@ -127,6 +128,10 @@ def get_queryset(self):
 class BookListCreateAPIView(ListCreateAPIView):
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = BookPagination
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
 
     def get_queryset(self):
         return Book.objects.filter(user=self.request.user)
